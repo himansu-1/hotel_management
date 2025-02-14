@@ -27,18 +27,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     setcookie("user_id", $user['user_id'], time() + (86400 * 7), "/", "", true, true);
     setcookie("role", $user['role'], time() + (86400 * 7), "/", "", true, true);
 
-    // Redirect based on role using JavaScript for reliable redirecting
-    switch ($role) {
-      case 'ADMIN':
-        header("Location: ../../admin/dashboard/dashboard.php");
-        exit();
-      case 'STAFF':
-        header("Location: ../../admin/dashboard/dashboard.php");
-        exit();
-      default:
-        header("Location: ../../admin/config/logout.php");
-        exit();
-    }
+    $_SESSION['message'] = "Logged in successfully.";
+    $_SESSION['type'] = "success";
+    header("Location: ../../admin/dashboard/dashboard.php");
+    exit();
   } else {
     $_SESSION['message'] = "An error occurred. Please try again.";
     header("Location: " . $_SERVER['HTTP_REFERER']);

@@ -1,5 +1,10 @@
-<?php require_once('../../config/config.php'); ?>
-<?php require_once('../../config/ifNotLogin.php'); ?>
+<?php 
+session_start();
+require_once('../../config/config.php'); 
+require_once('../../config/ifNotLogin.php');
+require_once('../middleware/checkAccess.php');
+
+?>
 
 <!DOCTYPE html>
 <html lang="en">
