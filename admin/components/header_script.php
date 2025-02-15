@@ -26,6 +26,7 @@
 <!-- endinject -->
 <!-- inject:css -->
 <link rel="stylesheet" href="<?= $baseurl ?>assets/css/vertical-layout-light/style.css">
+<link rel="stylesheet" href="<?= $baseurl ?>assets/css/vertical-layout-light/bootstrap.min.css">
 <!-- endinject -->
 
 

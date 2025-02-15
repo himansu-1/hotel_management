@@ -6,7 +6,7 @@ function hasAccess($section)
     }
 
     $permissions = json_decode($_COOKIE['permissions'], true);
-    return isset($permissions[$section]) && $permissions[$section] === true;
+    return isset($permissions[$section]) && $permissions[$section] === 1;
 }
 
 // Function to check if the user has access to ANY of the given sections
@@ -19,7 +19,7 @@ function hasAnyAccess(...$sections)
     $permissions = json_decode($_COOKIE['permissions'], true);
 
     foreach ($sections as $section) {
-        if (isset($permissions[$section]) && $permissions[$section] === true) {
+        if (isset($permissions[$section]) && $permissions[$section] === 1) {
             return true; // Return true if at least one permission is found
         }
     }

@@ -15,7 +15,7 @@
   <!-- Main content Start -->
 
 
-  <h1>Welcome, <?php echo $_COOKIE['username']; ?></h1>
+  <h1>booking_history</h1>
 
   <?php if (hasAccess('rooms_create')): ?>
     <a href="rooms.php">rooms_create</a><br>

@@ -15,15 +15,4 @@ try {
 } catch (PDOException $e) {
   die("Connection failed: " . $e->getMessage());
 }
-
-$projectName = 'Taksh Hotel Management';
-$logo = 'logo.png';
-$phone1 = '+91 1234567890';
-$email1 = 'info@example.com';
-
-$reservationUrl = array(
-  'bookings',
-  'rooms',
-  'booking_history',
-  'payment_history'
-);
+?>
