@@ -45,18 +45,16 @@
                   </tr>
                 </thead>
                 <tbody id="roomsList">
-
                 </tbody>
               </table>
             </div>
-
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Modal -->
+  <!-- Create Rooms Modal -->
   <div class="modal fade" id="createRoomModal" tabindex="-1" aria-labelledby="createRoomModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
       <div class="modal-content">
@@ -114,25 +112,89 @@
     </div>
   </div>
 
+  <!-- Edit Room Modal -->
+  <div class="modal fade" id="editRoomModal" tabindex="-1" aria-labelledby="editRoomModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editRoomModalLabel">Edit Room</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="editRoomForm">
+          <input type="hidden" id="roomId">
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group mb-1">
+                  <label class="mb-0 mt-1" for="roomCategory">Select Category</label>
+                  <select class="form-select" id="roomCategory" name="roomCategory">
+                    <option>Select Category</option>
+                    <option value="ac">AC</option>
+                    <option value="non_ac">Non AC</option>
+                  </select>
+                </div>
+                <div class="form-group mb-1">
+                  <label class="mb-0 mt-1" for="roomNumber">Room Number</label>
+                  <input type="text" class="form-control" id="roomNumber" name="roomNumber" placeholder="Room Number">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group mb-1">
+                  <label class="mb-0 mt-1" for="roomFloor">Floor</label>
+                  <select name="roomFloor" id="roomFloor" class="form-select">
+                    <option disabled>Select Floor Number</option>
+                    <option value="1">First</option>
+                    <option value="2">Second</option>
+                    <option value="3">Third</option>
+                  </select>
+                </div>
+                <div class="form-group mb-1">
+                  <label class="mb-0 mt-1" for="roomPrice">Price</label>
+                  <input type="number" class="form-control" id="roomPrice" name="roomPrice" step="0.01" placeholder="Enter Price">
+                </div>
+              </div>
+              <div class="form-group mb-1">
+                <label class="mb-0 mt-1" for="roomDescription">Description</label>
+                <input type="text" class="form-control" id="roomDescription" name="roomDescription">
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <div class="col-md-12 text-center">
+              <button type="button" class="btn btn-primary mr-2" onclick="updateRoom()">Save</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+
   <!-- Main content End -->
   <?php require_once('../components/footer.php'); ?>
   <?php require_once('../components/footer_script.php'); ?>
   <script>
     $(document).ready(function() {
-      // fetch the doctors list
+      // fetch the rooms list
       fetchRooms();
+    });
 
-      // Fetch doctors
-      function fetchRooms() {
-        $.ajax({
-          url: "../../api/rooms/read.php",
-          type: "GET",
-          dataType: "json",
-          success: function(data) {
-            if (data.success) {
-              let html = "";
-              data.rooms.forEach((room) => {
-                html += `
+    $("#editRoomModal").on("shown.bs.modal", function() {
+      $(this).trigger("focus");
+    });
+
+    // Fetch rooms
+    function fetchRooms() {
+      $.ajax({
+        url: "../../api/rooms/read.php",
+        type: "GET",
+        dataType: "json",
+        success: function(data) {
+          if (data.success) {
+            let html = "";
+            data.rooms.forEach((room) => {
+              html += `
                 <tr>
                   <td data-order="${room.created_at}">${room.id}</td>
                   <td>${room.room_number}</td>
@@ -140,126 +202,267 @@
                   <td>${room.category}</td>
                   <td>${room.price}</td>  
                   <td class="d-flex gap-1">
-                    <button type="button" class="btn btn-info btn-sm text-light" onclick="editRoom('${room.id}', '${room.room_number}', '${room.floor}', '${room.category}', '${room.price}', '${room.description}')">
+                    <button type="button" class="btn btn-info btn-sm text-light px-2 py-1 rounded-circle" onclick="editRoom('${room.id}', '${room.room_number}', '${room.floor}', '${room.category}', '${room.price}', '${room.description}')">
                       <i class="fa-solid fa-edit"></i>
                     </button>
-                    <button type="button" class="btn btn-danger btn-sm text-light" onclick="deleteRoom('${room.id}')">
+                    <button type="button" class="btn btn-danger btn-sm text-light px-2 py-1 rounded-circle" onclick="deleteRoom('${room.id}')">
                       <i class="fa-solid fa-trash"></i>
                     </button>
                   </td>
                 </tr>`;
-              });
-
-              // Destroy old DataTable instance before updating
-              if ($.fn.DataTable.isDataTable("#roomsTable")) {
-                $("#roomsTable").DataTable().destroy();
-              }
-
-              $("#roomsList").html(html); // Update table body
-
-              // Reinitialize DataTable
-              $("#roomsTable").DataTable({
-                order: [
-                  [0, "desc"]
-                ],
-                columnDefs: [{
-                    targets: [0],
-                  }, // Hide the first column
-                ],
-              });
-            } else {
-              $("#roomsList").html('<tr><td class="text-center" colspan="5">No Rooms found.</td></tr>');
-            }
-          },
-          error: function(err) {
-            console.error("Error fetching rooms:", err);
-          },
-        });
-      }
-
-      // Handle Create Room Form Submission
-      $("#createRoomForm").submit(function(event) {
-        event.preventDefault();
-        let formData = new FormData(this);
-
-        $.ajax({
-          url: "../../api/rooms/create.php",
-          type: "POST",
-          data: formData,
-          contentType: false,
-          processData: false,
-          success: function(result) {
-            console.log(result);
-
-            let notifyType = result.success ? "success" : "danger"; // Success or Error type
-            let notifyIcon = result.success ? "fa fa-check-circle" : "fa fa-exclamation-circle";
-            let notifyMessage = result.success ? "Room Created Successfully!" : (result.message || "Some error occurred!");
-
-            // Show notification
-            $.notify({
-              title: "<strong>Notification</strong><br>",
-              message: notifyMessage,
-              icon: notifyIcon
-            }, {
-              type: notifyType,
-              allow_dismiss: true,
-              delay: 3000,
-              animate: {
-                enter: 'animated fadeInDown',
-                exit: 'animated fadeOutUp'
-              },
-              placement: {
-                from: "top",
-                align: "right"
-              },
-              offset: {
-                x: 20,
-                y: 70
-              },
-              z_index: 1051
             });
 
-            if (result.success) {
-              fetchRooms();
-              $("#createRoomForm")[0].reset(); // Reset the form
-              $("#createRoomModal").modal("hide"); // Close the modal
-            } else {
-              setTimeout(fetchRooms, 500); // ✅ Delay to ensure fresh data is fetched
+            // Destroy old DataTable instance before updating
+            if ($.fn.DataTable.isDataTable("#roomsTable")) {
+              $("#roomsTable").DataTable().destroy();
             }
-          },
-          error: function() {
-            $.notify({
-              title: "<strong>Notification</strong><br>",
-              message: "Some error occurred!",
-              icon: "fa fa-exclamation-circle"
-            }, {
-              type: "danger",
-              allow_dismiss: true,
-              delay: 3000,
-              animate: {
-                enter: 'animated fadeInDown',
-                exit: 'animated fadeOutUp'
-              },
-              placement: {
-                from: "top",
-                align: "right"
-              },
-              offset: {
-                x: 20,
-                y: 70
-              },
-              z_index: 1051
-            });
 
+            $("#roomsList").html(html); // Update table body
+
+            // Reinitialize DataTable
+            $("#roomsTable").DataTable({
+              order: [
+                [0, "desc"]
+              ],
+              columnDefs: [{
+                  targets: [0],
+                }, // Hide the first column
+              ],
+            });
+          } else {
+            $("#roomsList").html('<tr><td class="text-center" colspan="5">No Rooms found.</td></tr>');
+          }
+        },
+        error: function(err) {
+          console.error("Error fetching rooms:", err);
+        },
+      });
+    }
+
+    // Handle Create Room Form Submission
+    $("#createRoomForm").submit(function(event) {
+      event.preventDefault();
+      let formData = new FormData(this);
+
+      $.ajax({
+        url: "../../api/rooms/create.php",
+        type: "POST",
+        data: formData,
+        contentType: false,
+        processData: false,
+        success: function(result) {
+          console.log(result);
+
+          let notifyType = result.success ? "success" : "danger"; // Success or Error type
+          let notifyIcon = result.success ? "fa fa-check-circle" : "fa fa-exclamation-circle";
+          let notifyMessage = result.success ? "Room Created Successfully!" : (result.message || "Some error occurred!");
+
+          // Show notification
+          $.notify({
+            title: "<strong>Notification</strong><br>",
+            message: notifyMessage,
+            icon: notifyIcon
+          }, {
+            type: notifyType,
+            allow_dismiss: true,
+            delay: 3000,
+            animate: {
+              enter: 'animated fadeInDown',
+              exit: 'animated fadeOutUp'
+            },
+            placement: {
+              from: "top",
+              align: "right"
+            },
+            offset: {
+              x: 20,
+              y: 70
+            },
+            z_index: 1051
+          });
+
+          if (result.success) {
             fetchRooms();
             $("#createRoomForm")[0].reset(); // Reset the form
             $("#createRoomModal").modal("hide"); // Close the modal
+          } else {
+            setTimeout(fetchRooms, 500); // ✅ Delay to ensure fresh data is fetched
           }
-        });
+        },
+        error: function() {
+          $.notify({
+            title: "<strong>Notification</strong><br>",
+            message: "Some error occurred!",
+            icon: "fa fa-exclamation-circle"
+          }, {
+            type: "danger",
+            allow_dismiss: true,
+            delay: 3000,
+            animate: {
+              enter: 'animated fadeInDown',
+              exit: 'animated fadeOutUp'
+            },
+            placement: {
+              from: "top",
+              align: "right"
+            },
+            offset: {
+              x: 20,
+              y: 70
+            },
+            z_index: 1051
+          });
+
+          fetchRooms();
+          $("#createRoomForm")[0].reset(); // Reset the form
+          $("#createRoomModal").modal("hide"); // Close the modal
+        }
       });
-
-
     });
+
+    // Edit room Value appended
+    function editRoom(id, room_number, floor, category, price, description) {
+      $("#roomId").val(id);
+      $("#roomNumber").val(room_number);
+      $("#roomFloor").val(floor);
+      $("#roomCategory").val(category);
+      $("#roomPrice").val(price);
+      $("#roomDescription").val(description);
+
+      // $("#editRoomModal").modal("show");
+      setTimeout(() => {
+        $("#editRoomModal").modal("show"); // Show after a short delay
+      }, 300);
+    }
+
+    // Delete doctor Function
+    function deleteRoom(roomId) {
+      swal({
+        text: "You want to delete this Room?",
+        icon: "warning",
+        buttons: {
+          cancel: {
+            text: "Cancel",
+            value: false,
+            visible: true,
+            className: "btn btn-danger",
+            closeModal: true,
+          },
+          delete: {
+            text: "Delete",
+            value: true,
+            visible: true,
+            className: "btn btn-primary",
+            closeModal: true,
+          },
+        },
+      }).then((willDelete) => {
+        if (willDelete) {
+          $.ajax({
+            url: "../../api/rooms/delete.php",
+            type: "POST",
+            data: {
+              id: roomId
+            },
+            success: function(response) {
+              // response = JSON.parse(response);
+
+              console.log("res-1",response);
+              console.log("res-2",response.success);
+
+              if (response.success) {
+                swal("Deleted!", "Room deleted successfully!", "success").then(() => {
+                  fetchRooms(); // Refresh the document list
+                });
+              } else {
+                swal("Error!", "Unable to delete the room.", "error");
+                fetchRooms(); // Refresh the document list
+              }
+            }
+          });
+        }
+      });
+    }
+
+    // Update Room POST request
+    // Update Room POST request
+    function updateRoom() {
+      const formData = new FormData();
+      formData.append("id", $("#roomId").val());
+      formData.append("room_number", $("#roomNumber").val());
+      formData.append("floor", $("#roomFloor").val());
+      formData.append("category", $("#roomCategory").val());
+      formData.append("price", $("#roomPrice").val());
+      formData.append("description", $("#roomDescription").val());
+
+      $.ajax({
+        url: "../../api/rooms/update.php",
+        type: "POST",
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(response) {
+          let notifyType = response.success ? "success" : "danger";
+          let notifyIcon = response.success ? "fa fa-check-circle" : "fa fa-exclamation-circle";
+          let notifyMessage = response.success ? "Room details updated successfully!" : response.message;
+
+          // Show notification
+          $.notify({
+            title: "<strong>Notification</strong><br>",
+            message: notifyMessage,
+            icon: notifyIcon
+          }, {
+            type: notifyType,
+            allow_dismiss: true,
+            delay: 3000,
+            animate: {
+              enter: 'animated fadeInDown',
+              exit: 'animated fadeOutUp'
+            },
+            placement: {
+              from: "top",
+              align: "right"
+            },
+            offset: {
+              x: 20,
+              y: 70
+            },
+            z_index: 2000
+          });
+
+          if (response.success) {
+            $("#editRoomModal").modal("hide");
+            setTimeout(() => {
+              fetchRooms();
+            }, 300);
+          }
+        },
+        error: function() {
+          $.notify({
+            title: "<strong>Notification</strong><br>",
+            message: "Failed to update Room details.",
+            icon: "fa fa-exclamation-circle"
+          }, {
+            type: "danger",
+            allow_dismiss: true,
+            delay: 3000,
+            animate: {
+              enter: 'animated fadeInDown',
+              exit: 'animated fadeOutUp'
+            },
+            placement: {
+              from: "top",
+              align: "right"
+            },
+            offset: {
+              x: 20,
+              y: 70
+            },
+            z_index: 2000
+          });
+        },
+      });
+    }
   </script>
 </body>
 
