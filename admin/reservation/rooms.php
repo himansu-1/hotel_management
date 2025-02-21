@@ -23,8 +23,8 @@
             <h4 class="position-relative py-1">
               Rooms
               <span class="position-absolute top-0 end-0">
-                <a class="badge rounded-pill bg-danger text-decoration-none shadow p-2" type="button" data-bs-toggle="modal" data-bs-target="#createRoomModal">
-                  <i class="fa-solid fa-plus"></i>
+                <a class="badge rounded-pill bg-primary text-decoration-none shadow p-2 px-3" type="button" data-bs-toggle="modal" data-bs-target="#createRoomModal">
+                  CREATE ROOM
                 </a>
               </span>
             </h4>
@@ -41,6 +41,7 @@
                     <th>Floor</th>
                     <th>Room Type</th>
                     <th>Price</th>
+                    <th>Reserve</th>
                     <th>Action</th>
                   </tr>
                 </thead>
@@ -98,6 +99,16 @@
               <div class="form-group mb-1">
                 <label class="mb-0 mt-1" for="description">Description</label>
                 <input type="text" class="form-control" id="description" name="description">
+              </div>
+              <div class="form-group mb-1">
+                <label class="mb-0 mt-1" for="reserve">Reserve</label>
+                <select name="reserve" id="reserve" class="form-select">
+                  <option value="unreserved" selected>Unreserved</option>
+                  <option value="Goibibo">Goibibo</option>
+                  <option value="OYO">OYO</option>
+                  <option value="MakeMyTrip">MakeMyTrip</option>
+                  <option value="Yatra">Yatra</option>
+                </select>
               </div>
             </div>
           </div>
@@ -157,6 +168,17 @@
                 <label class="mb-0 mt-1" for="roomDescription">Description</label>
                 <input type="text" class="form-control" id="roomDescription" name="roomDescription">
               </div>
+              <div class="form-group mb-1">
+                <label class="mb-0 mt-1" for="roomReserve">Reserve</label>
+                <select name="roomReserve" id="roomReserve" class="form-select">
+                  <option value="">Change Reservation</option>
+                  <option value="unreserved">Unreserved</option>
+                  <option value="Goibibo">Goibibo</option>
+                  <option value="OYO">OYO</option>
+                  <option value="MakeMyTrip">MakeMyTrip</option>
+                  <option value="Yatra">Yatra</option>
+                </select>
+              </div>
             </div>
           </div>
           <div class="modal-footer">
@@ -201,8 +223,9 @@
                   <td>${room.floor}</td>
                   <td>${room.category}</td>
                   <td>${room.price}</td>  
+                  <td style="text-transform: capitalize;">${room.reserve}</td>  
                   <td class="d-flex gap-1">
-                    <button type="button" class="btn btn-info btn-sm text-light px-2 py-1 rounded-circle" onclick="editRoom('${room.id}', '${room.room_number}', '${room.floor}', '${room.category}', '${room.price}', '${room.description}')">
+                    <button type="button" class="btn btn-info btn-sm text-light px-2 py-1 rounded-circle" onclick="editRoom('${room.id}', '${room.room_number}', '${room.floor}', '${room.category}', '${room.price}', '${room.description}', '${room.reserve}')">
                       <i class="fa-solid fa-edit"></i>
                     </button>
                     <button type="button" class="btn btn-danger btn-sm text-light px-2 py-1 rounded-circle" onclick="deleteRoom('${room.id}')">
@@ -321,13 +344,14 @@
     });
 
     // Edit room Value appended
-    function editRoom(id, room_number, floor, category, price, description) {
+    function editRoom(id, room_number, floor, category, price, description, reserve) {
       $("#roomId").val(id);
       $("#roomNumber").val(room_number);
       $("#roomFloor").val(floor);
       $("#roomCategory").val(category);
       $("#roomPrice").val(price);
       $("#roomDescription").val(description);
+      $("#roomReserve").val(reserve);
 
       // $("#editRoomModal").modal("show");
       setTimeout(() => {
@@ -367,8 +391,8 @@
             success: function(response) {
               // response = JSON.parse(response);
 
-              console.log("res-1",response);
-              console.log("res-2",response.success);
+              // console.log("res-1",response);
+              // console.log("res-2",response.success);
 
               if (response.success) {
                 swal("Deleted!", "Room deleted successfully!", "success").then(() => {
@@ -394,6 +418,7 @@
       formData.append("category", $("#roomCategory").val());
       formData.append("price", $("#roomPrice").val());
       formData.append("description", $("#roomDescription").val());
+      formData.append("reserve", $("#roomReserve").val());
 
       $.ajax({
         url: "../../api/rooms/update.php",

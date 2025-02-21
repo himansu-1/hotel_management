@@ -11,11 +11,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $floor = $_POST['floor'] ?? '';
     $price = $_POST['price'] ?? '';
     $description = $_POST['description'] ?? '';
+    $reserve = $_POST['reserve'] ?? '';
 
     try {
         // Prepare the SQL statement using PDO
-        $query = "INSERT INTO rooms (category, room_number, floor, price, description, created_at) 
-                  VALUES (:category, :room_number, :floor, :price, :description, NOW())";
+        $query = "INSERT INTO rooms (category, room_number, floor, price, description, reserve, created_at) 
+                  VALUES (:category, :room_number, :floor, :price, :description, :reserve, NOW())";
 
         $stmt = $connect->prepare($query);
 
@@ -25,6 +26,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->bindParam(':floor', $floor);
         $stmt->bindParam(':price', $price);
         $stmt->bindParam(':description', $description);
+        $stmt->bindParam(':reserve', $reserve);
 
         // Execute the statement
         if ($stmt->execute()) {

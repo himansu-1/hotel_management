@@ -164,6 +164,9 @@ $currentPath = $_SERVER['REQUEST_URI'];
                   <?php if (hasAnyAccess('booking_payments')) { ?>
                     <li class="nav-item"> <a class="nav-link" href="<?= $baseurl ?>admin/reservation/payment_history.php">Payments History</a></li>
                   <?php } ?>
+                  <?php if (hasAnyAccess('house_keeping')) { ?>
+                    <li class="nav-item"> <a class="nav-link" href="<?= $baseurl ?>admin/reservation/house_keeping.php">House Keeping</a></li>
+                  <?php } ?>
                 </ul>
               </div>
             </li>

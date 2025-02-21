@@ -12,6 +12,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $category = $_POST['category'] ?? null;
     $price = $_POST['price'] ?? null;
     $description = $_POST['description'] ?? null;
+    $reserve = $_POST['reserve'] ?? null;
 
     if (!$id || !$room_number || !$floor || !$category || !$price) {
         echo json_encode(['success' => false, 'message' => 'All fields are required.']);
@@ -19,13 +20,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     try {
-        // Update the room details using a prepared statement
         $query = "UPDATE rooms SET 
                   room_number = :room_number, 
                   floor = :floor, 
                   category = :category, 
                   price = :price, 
-                  description = :description 
+                  description = :description,
+                  reserve = :reserve
                   WHERE id = :id";
 
         $stmt = $connect->prepare($query);
@@ -35,6 +36,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->bindParam(':category', $category, PDO::PARAM_STR);
         $stmt->bindParam(':price', $price, PDO::PARAM_STR);
         $stmt->bindParam(':description', $description, PDO::PARAM_STR);
+        $stmt->bindParam(':reserve', $reserve, PDO::PARAM_STR);
 
         $stmt->execute();
 
